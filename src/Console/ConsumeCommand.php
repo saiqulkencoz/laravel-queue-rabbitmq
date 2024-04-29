@@ -2,14 +2,15 @@
 
 namespace VladimirYuldashev\LaravelQueueRabbitMQ\Console;
 
-use Illuminate\Queue\Console\WorkCommand;
 use Illuminate\Support\Str;
+use Illuminate\Queue\Console\WorkCommand;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 use VladimirYuldashev\LaravelQueueRabbitMQ\Consumer;
 
 class ConsumeCommand extends WorkCommand
 {
     protected $signature = 'rabbitmq:consume
-                            {connection? : The name of the queue connection to work}
+                            {connection=rabbitmq : The name of the queue connection to use}
                             {--name=default : The name of the consumer}
                             {--queue= : The name of the queue to work. Please notice that there is no support for multiple queues}
                             {--once : Only process the next job on the queue}
@@ -44,6 +45,19 @@ class ConsumeCommand extends WorkCommand
         $consumer->setMaxPriority((int) $this->option('max-priority'));
         $consumer->setPrefetchSize((int) $this->option('prefetch-size'));
         $consumer->setPrefetchCount((int) $this->option('prefetch-count'));
+
+        $environtment = config('app.env');
+        $queueTube = $this->option('queue');
+        $config = config('queue.connections.rabbitmq.hosts')[0];
+        $connection = new AMQPStreamConnection(
+            $config['host'],
+            $config['port'],
+            $config['user'],
+            $config['password'],
+        );
+        
+        $channel = $connection->channel();
+        $channel->queue_declare($queueTube, false, true, false, false);
 
         parent::handle();
     }
