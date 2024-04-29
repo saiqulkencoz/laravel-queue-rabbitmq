@@ -19,10 +19,11 @@ You can install this package via composer using this command:
 
 ```
 composer config repositories.laravel-queue-rabbitmq vcs https://github.com/saiqulkencoz/laravel-queue-rabbitmq
+
 composer require saiqulkencoz/laravel-queue-rabbitmq:dev-master
 ```
 
-The package will automatically register itself.
+The package will automatically register itself. make sure to change minimum-stability ```"minimum-stability": "dev"``` to match composer minimum stability
 
 ### Configuration
 
